@@ -1,1 +1,3 @@
 client undefined disconnected
+Client 1 connected
+client 1 disconnected

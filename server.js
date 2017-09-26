@@ -11,10 +11,12 @@ const server = net.createServer((client) => {
     client.on('data', (data) => {
         if(data === 'FILES'){
             client.write('ACK');
+            client.id = seed++;
+            logger.write('Client ' + client.id + ' connected\n');
         }
         else {
-            client.write('DEC');
-            client.destroy();
+            //client.write('DEC');
+            console.log(data);
         }
     });
 
