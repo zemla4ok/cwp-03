@@ -1,6 +1,7 @@
 const net = require('net');
 const fs = require('fs');
 const port = 8124;
+const defDir = process.env.MY_TEMP;
 let seed = 0;
 const logger = fs.createWriteStream('client_id.txt');
 const server = net.createServer((client) => {
