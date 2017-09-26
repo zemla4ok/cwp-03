@@ -9,7 +9,10 @@ const server = net.createServer((client) => {
     client.setEncoding('utf8');
 
     client.on('data', (data) => {
-        if (data === 'QA') {
+        if(data === 'FILES'){
+            console.log('eeeeee');
+        }
+        else if (data === 'QA') {
             client.write('ACK');
         }
         else{
