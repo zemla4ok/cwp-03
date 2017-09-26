@@ -1,0 +1,7 @@
+{
+  "name": "cwp-03",
+  "version": "0.0.1",
+  "dependencies": {
+    "shuffle-array": "latest"
+  }
+}
