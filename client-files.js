@@ -38,7 +38,8 @@ function sendFilesToServer() {
         console.log(arrayOfFiles);
         for (let j = 0; j < arrayOfFiles.length; ++j) {
             console.log(dirs[i] + '\\' + arrayOfFiles[j]);
-            let buffer = fs.readFileSync(dirs[i] + '\\' + arrayOfFiles[j]);
+            let buffer = fs.readFileSync(dirs[i] + '\\' + arrayOfFiles[j], 'utf-8');
+            console.log(buffer);
             client.write(buffer);
         }
     }
