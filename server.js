@@ -10,17 +10,11 @@ const server = net.createServer((client) => {
 
     client.on('data', (data) => {
         if(data === 'FILES'){
-            console.log('eeeeee');
-        }
-        else if (data === 'QA') {
             client.write('ACK');
         }
-        else{
-            //client.write('DEC');
-            logger.write(client.id + ' data: ' + data);
-            let ans = getRandom();
-            logger.write('; answer: ' + ans + '\n');
-            client.write(ans);
+        else {
+            client.write('DEC');
+            client.destroy();
         }
     });
 
