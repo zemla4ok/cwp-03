@@ -1,47 +1,67 @@
 const net = require('net');
 const fs = require('fs');
+const path = require("path");
 const port = 8124;
+const dirs = process.argv;
 const client = new net.Socket();
 
-let dirs = [];
+const req = 'FILES';
+const goodResp = 'ACK';
+const badResp = 'DEC';
+const resFiles = 'NEXT'
+
+let arrOfFiles = [];
 client.setEncoding('utf8');
-client.connect(port, function () {
-    console.log('Connected');
-    let paths = process.argv;
-    for (let i = 2; i < paths.length; ++i) {
-        //console.log(paths[i]);
-        dirs.push(paths[i]);
-    }
-    client.write('FILES');
+getDirs();
+
+client.connect(port, () => {
+
+    client.write(req);
 });
 
-client.on('data', (data, err) => {
-    if (err) {
-        console.log(err);
-    }
-    else if (data === 'DEC') {
+function getDirs() {
+    process.argv.slice(2).forEach((dir) => {
+        readFiles(dir);
+    });
+}
+
+function readFiles(dir) {
+    fs.readdir(dir, (err, files) => {
+        files.forEach((file) => {
+            file = dir + path.sep + file;
+            fs.lstat(file, (err, stats) => {
+                if (stats.isFile())
+                    arrOfFiles.push(file);
+                else
+                    readFiles(file);
+            })
+        });
+    })
+}
+
+client.on('data', (data) => {
+    console.log(data);
+    console.log(arrOfFiles);
+    if(arrOfFiles.length===0)
+        client.destroy();
+    else if (data === badResp) {
         client.destroy();
     }
-    else if (data === 'ACK') {
-        sendFilesToServer();
+    else if (data === goodResp || data === resFiles) {
+        sendFile()
+    }
+
+    function sendFile() {
+            let filePath = arrOfFiles.pop();
+            fs.readFile(filePath, (err, data) => {
+                let buf = data.toString('hex');
+
+                client.write(buf);
+                client.write(path.basename(filePath));
+            })
     }
 });
 
 client.on('close', function () {
     console.log('Connection closed');
 });
-
-function sendFilesToServer() {
-    let arrayOfFiles = [];
-    for (let i = 0; i < dirs.length; ++i) {
-        arrayOfFiles = fs.readdirSync(dirs[i]);
-        console.log(arrayOfFiles);
-        for (let j = 0; j < arrayOfFiles.length; ++j) {
-            console.log(dirs[i] + '\\' + arrayOfFiles[j]);
-            let buffer = fs.readFileSync(dirs[i] + '\\' + arrayOfFiles[j], 'utf-8');
-            console.log(buffer);
-            client.write(buffer);
-        }
-    }
-    client.destroy();
-}

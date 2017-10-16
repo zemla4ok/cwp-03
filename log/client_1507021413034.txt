@@ -1,0 +1,1 @@
+Client 1507021413034/nQuestion: Is Josh Snow a King of the North?/nAnswer: True/nQuestion: 2+2*2=6/nAnswer: True/nQuestion: Do you use callbacks in callbacks?/nAnswer: True/nQuestion: lol kek.../nAnswer: chebyrek/n

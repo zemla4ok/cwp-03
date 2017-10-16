@@ -4,55 +4,42 @@ const shuffle = require('shuffle-array');
 const port = 8124;
 const client = new net.Socket();
 
-let arr;
-let currInd = -1;
-let servAnsw;
+const req = 'QA';
+const goodResp = 'ACK';
+const badResp = 'DEC';
+
+let arr = require('./qa.json');
+let currInd = 0;
 client.setEncoding('utf8');
 client.connect(port, function () {
     console.log('Connected');
-    fs.readFile('qa.json', (err, text) => {
-        if (!err) {
-            arr = JSON.parse(text);
-            shuffle(arr);
-            client.write('QA');
-        }
-        else {
-            console.log(err);
-        }
-    })
+    shuffle(arr);
+    client.write(req);
 });
 
 client.on('data',  (data) => {
-    //console.log(data);
-    if (data === 'DEC') {
+    if(data === goodResp) {
+        console.log(data);
+        client.write(arr[currInd].question);
+    }
+    else if(data === badResp){
+        console.log(data);
         client.destroy();
     }
-    if (data === 'ACK') {
-        sendQuestion();
-    }
-    else {
-        if (data === '1') {
-            servAnsw = arr[currInd].goodAns;
+    else{
+        console.log(`Question: ${arr[currInd].question}`);
+        console.log(`Good answer: ${arr[currInd].goodAns}`);
+        console.log(`Server answer: ${data}`);
+        if(currInd < arr.length-1){
+            currInd++;
+            client.write(arr[currInd].question);
         }
-        else {
-            servAnsw = arr[currInd].badAns;
+        else{
+            client.destroy();
         }
-        console.log('Question: ' + arr[currInd].question);
-        console.log('Good Answer: ' + arr[currInd].goodAns);
-        console.log('Server Answer: ' + servAnsw);
-        sendQuestion();
     }
 });
 
 client.on('close', function () {
     console.log('Connection closed');
 });
-
-function sendQuestion() {
-    if (currInd < arr.length - 1) {
-        client.write(arr[++currInd].question);
-    }
-    else {
-        client.destroy();
-    }
-}
